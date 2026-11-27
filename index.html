@@ -174,9 +174,9 @@ const CARS = {
         highlights:['7에어백 (운전석 무릎 포함)','전방 충돌방지 보조 (차량/보행자/자전거)','8인치 디스플레이 오디오 (무선 폰프로젝션)','4단 자동변속기'],
         options:[
           { id:'btn', name:'버튼시동 PACK', price:50*M, desc:'버튼시동 스마트키(원격시동) + 하이패스 자동결제' },
-          { id:'style', name:'스타일', price:90*M, excludes:['wheel16'], desc:'LED 헤드램프, 프론트 LED 턴시그널램프, LED 주간주행등, LED 리어 콤비네이션램프, 14인치 알로이 휠, LED 리피터 일체형 아웃사이드 미러' },
-          { id:'wheel16', name:'16인치 전면가공 휠', price:50*M, excludes:['style','wheel16s'], desc:'195/45 R16 타이어&전면가공 휠, 후륜 디스크 브레이크' },
-          { id:'wheel16s', name:'16인치 전면가공 휠 (스타일 선택 시)', price:40*M, requires:['style'], desc:'195/45 R16 타이어&전면가공 휠, 후륜 디스크 브레이크 · 스타일과 함께 고르면 40만' },
+          { id:'style', name:'스타일', price:90*M, excludes:['wheel16'], note:'16인치 휠은 스타일 전용(40만)으로 선택', desc:'LED 헤드램프, 프론트 LED 턴시그널램프, LED 주간주행등, LED 리어 콤비네이션램프, 14인치 알로이 휠, LED 리피터 일체형 아웃사이드 미러' },
+          { id:'wheel16', name:'16인치 전면가공 휠', price:50*M, excludes:['style','wheel16s'], note:'스타일 없이 고를 때 · 스타일과 같이 고르면 아래 40만 휠로', desc:'195/45 R16 타이어&전면가공 휠, 후륜 디스크 브레이크' },
+          { id:'wheel16s', name:'16인치 전면가공 휠 (스타일 선택 시)', price:40*M, requires:['style'], note:'', desc:'195/45 R16 타이어&전면가공 휠, 후륜 디스크 브레이크' },
           { id:'comfort', name:'컴포트', price:30*M, desc:'인조가죽시트(블랙), 앞좌석 열선시트, 운전석 시트 암레스트, 운전석 시트 높이조절장치, 앞좌석 시트벨트 높이조절장치, 동승석 시트백 포켓' },
           { id:'conv', name:'컨비니언스', price:15*M, desc:'열선 스티어링 휠, 인조가죽 스티어링 휠, 가죽 변속기 노브' },
           { id:'nav', name:'8인치 내비게이션', price:80*M, requires:['btn'], desc:'기아 커넥트, 폰 프로젝션, 인카페이먼트, 내비 무선 업데이트, 6스피커, 전자식 룸미러, 풀오토 에어컨' },
@@ -310,7 +310,7 @@ function renderOpts(){
   $('opts').innerHTML = t.options.map(o=>{
     const req = (o.requires||[]).map(id=>optById(id).name);
     const exc = trim().options.filter(x=>conflicts(o,x)).map(x=>x.name.replace(/ \(.*\)$/,''));
-    const hint = [o.desc, req.length ? `${req.join(', ')} 선택 시 가능 (자동으로 함께 선택돼요)` : '', exc.length ? `${[...new Set(exc)].map(n=>n+(jong(n)?'과':'와')).join(', ')} 동시 선택 불가` : ''].filter(Boolean).join(' · ');
+    const hint = [o.desc, req.length ? `${req.join(', ')} 선택 시 가능 (자동으로 함께 선택돼요)` : '', ('note' in o) ? o.note : (exc.length ? `${[...new Set(exc)].map(n=>n+(jong(n)?'과':'와')).join(', ')} 동시 선택 불가` : '')].filter(Boolean).join(' · ');
     return `<label class="chk"><input type="checkbox" data-opt="${esc(o.id)}" ${S.opts.has(o.id)?'checked':''}>
       <span class="nm">${esc(o.name)}${hint?`<small>${esc(hint)}</small>`:''}</span>
       <span class="p">+${shortMan(o.price)}원</span></label>`;
