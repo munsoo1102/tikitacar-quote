@@ -58,6 +58,8 @@ details p{margin:6px 0}
 .done{text-align:center;padding:24px 0}
 .done h3{font-size:22px;margin:0 0 6px;color:var(--y)}
 #bar{position:fixed;left:0;right:0;bottom:0;background:#000;border-top:2px solid var(--y);padding:10px 16px;z-index:5}
+#bar{transition:transform .25s ease}
+#bar.hide{transform:translateY(110%)}
 #bar .in{max-width:560px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:10px}
 #bar small{color:var(--sub);font-size:12px;display:block}
 #bar .mm{font-size:20px;font-weight:900;color:var(--y)}
@@ -366,6 +368,13 @@ $('form').addEventListener('submit', async e=>{
 
 S.trim = car().trims[0].id;
 renderAll();
+
+// 신청서가 화면에 보이면 하단 월납입 띠를 숨김
+if ('IntersectionObserver' in window) {
+  new IntersectionObserver(function (es) {
+    document.getElementById('bar').classList.toggle('hide', es[0].isIntersecting);
+  }).observe(document.getElementById('apply'));
+}
 </script>
 </body>
 </html>
