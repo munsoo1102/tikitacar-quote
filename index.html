@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>티키타CAR 견적 계산기</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--y:#FFD400;--bg:#0d0d0d;--card:#181818;--line:#2a2a2a;--tx:#f5f5f5;--sub:#9a9a9a}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:'Noto Sans KR',-apple-system,'Malgun Gothic',sans-serif;line-height:1.5;padding-bottom:96px}
+.wrap{max-width:560px;margin:0 auto;padding:0 16px}
+header{padding:28px 0 12px}
+header h1{margin:0;font-size:24px;font-weight:900}
+header h1 span{color:var(--y)}
+header p{margin:2px 0 0;font-size:13px;color:var(--sub)}
+section{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin:14px 0}
+h2{margin:0 0 12px;font-size:16px;font-weight:700}
+h2 i{font-style:normal;display:inline-block;width:22px;height:22px;line-height:22px;text-align:center;border-radius:50%;background:var(--y);color:#000;font-size:13px;margin-right:8px}
+.opt{display:block;width:100%;text-align:left;background:#101010;border:2px solid var(--line);color:var(--tx);border-radius:12px;padding:12px 14px;margin-bottom:10px;font:inherit;cursor:pointer}
+.opt.on{border-color:var(--y);background:#1f1c08}
+.opt .top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.opt b{font-size:17px}
+.opt .pr{font-weight:700;color:var(--y);white-space:nowrap}
+.opt ul{margin:6px 0 0;padding-left:18px;font-size:13px;color:var(--sub)}
+.chk{display:flex;gap:10px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line);cursor:pointer}
+.chk:last-child{border-bottom:0}
+.chk input{width:22px;height:22px;accent-color:var(--y);margin-top:2px;flex:none}
+.chk .nm{flex:1}
+.chk .nm small{display:block;color:var(--sub);font-size:12px}
+.chk .p{font-weight:700;white-space:nowrap}
+.empty{color:var(--sub);font-size:14px}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.pill{flex:1;min-width:64px;padding:10px 6px;text-align:center;border-radius:10px;border:2px solid var(--line);background:#101010;color:var(--tx);font:inherit;font-weight:500;cursor:pointer}
+.pill.on{border-color:var(--y);background:var(--y);color:#000;font-weight:700}
+input[type=text],input[type=tel],input[type=number],textarea,select{width:100%;background:#101010;border:2px solid var(--line);color:var(--tx);border-radius:10px;padding:12px;font:inherit;font-size:16px}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--y)}
+label.l{display:block;font-size:13px;color:var(--sub);margin:12px 0 4px}
+.dp{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.dp span{white-space:nowrap}
+table{width:100%;border-collapse:collapse;font-size:15px}
+td{padding:7px 0;border-bottom:1px solid var(--line)}
+td:last-child{text-align:right;font-weight:500}
+.big{text-align:center;padding:14px 0 6px}
+.big small{color:var(--sub);font-size:13px}
+.big .m{font-size:34px;font-weight:900;color:var(--y);line-height:1.2}
+.big .e{font-size:14px;color:var(--sub)}
+.note{font-size:12px;color:var(--sub);margin:10px 0 0}
+.btn{width:100%;background:var(--y);color:#000;border:0;border-radius:12px;padding:15px;font:inherit;font-size:17px;font-weight:900;cursor:pointer;margin-top:14px}
+.btn:disabled{opacity:.5}
+details{margin-top:12px;font-size:13px;color:var(--sub)}
+details p{margin:6px 0}
+.agree{display:flex;gap:10px;align-items:center;margin-top:14px;font-size:14px}
+.agree input{width:22px;height:22px;accent-color:var(--y);flex:none}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.msg{margin-top:10px;font-size:14px;color:#ff8a8a}
+.msg.ok{color:var(--y)}
+.done{text-align:center;padding:24px 0}
+.done h3{font-size:22px;margin:0 0 6px;color:var(--y)}
+#bar{position:fixed;left:0;right:0;bottom:0;background:#000;border-top:2px solid var(--y);padding:10px 16px;z-index:5}
+#bar .in{max-width:560px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:10px}
+#bar small{color:var(--sub);font-size:12px;display:block}
+#bar .mm{font-size:20px;font-weight:900;color:var(--y)}
+#bar a{background:var(--y);color:#000;text-decoration:none;font-weight:900;border-radius:10px;padding:10px 14px;font-size:15px;white-space:nowrap}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>티키타<span>CAR</span> 견적 계산기</h1>
+  <p>기아 증산대리점 카마스터 방문수</p>
+</header>
+
+<section>
+  <h2><i>1</i>차종 선택</h2>
+  <div id="cars"></div>
+</section>
+
+<section>
+  <h2><i>2</i>트림 선택</h2>
+  <div id="trims"></div>
+</section>
+
+<section>
+  <h2><i>3</i>옵션 선택</h2>
+  <div id="opts"></div>
+</section>
+
+<section>
+  <h2><i>4</i>선수금</h2>
+  <div class="dp"><input id="dp" type="number" inputmode="numeric" min="0" step="1" value="0"><span>만원</span></div>
+  <div class="row" id="dpq"></div>
+</section>
+
+<section>
+  <h2><i>5</i>할부 기간</h2>
+  <div class="row" id="months"></div>
+</section>
+
+<section id="result">
+  <h2>예상 견적</h2>
+  <table>
+    <tr><td>차량가 (트림+옵션)</td><td id="rPrice"></td></tr>
+    <tr><td>선수금</td><td id="rDown"></td></tr>
+    <tr><td>할부원금</td><td id="rLoan"></td></tr>
+    <tr><td>총 이자</td><td id="rInt"></td></tr>
+  </table>
+  <div class="big">
+    <small>월 납입금 (연 <span id="rRate"></span>%, <span id="rMon"></span>개월)</small>
+    <div class="m" id="rMonthly"></div>
+    <div class="e" id="rMonthlyExact"></div>
+  </div>
+  <p class="note">예상 금액이며 실제 금리·조건·프로모션은 상담 시 안내드립니다. 취등록세·탁송료 등 별도. 가격 기준 2026.11.01 기아 공식 가격표.</p>
+</section>
+
+<section id="apply">
+  <div id="formBox">
+    <h2>상담 신청</h2>
+    <form id="form" novalidate>
+      <label class="l" for="fName">이름</label>
+      <input id="fName" type="text" autocomplete="name" maxlength="30">
+      <label class="l" for="fPhone">연락처</label>
+      <input id="fPhone" type="tel" inputmode="tel" placeholder="010-0000-0000" autocomplete="tel" maxlength="13">
+      <label class="l" for="fTime">희망 연락 시간 (선택)</label>
+      <select id="fTime">
+        <option value="">상관없음</option>
+        <option>오전 (9~12시)</option>
+        <option>오후 (12~18시)</option>
+        <option>저녁 (18~21시)</option>
+      </select>
+      <label class="l" for="fMemo">문의 메모 (선택)</label>
+      <textarea id="fMemo" rows="3" maxlength="500"></textarea>
+      <div class="hp" aria-hidden="true"><label>웹사이트<input id="fWeb" type="text" tabindex="-1" autocomplete="off"></label></div>
+      <label class="agree"><input id="fAgree" type="checkbox"><span>개인정보 수집·이용에 동의합니다 (필수)</span></label>
+      <details>
+        <summary>개인정보 수집·이용 안내 보기</summary>
+        <p>수집 항목: 이름, 연락처, 견적 내용</p>
+        <p>이용 목적: 견적 상담 연락</p>
+        <p>보유 기간: 상담 종료 후 1년</p>
+        <p>동의를 거부할 수 있으나, 거부 시 상담 신청이 불가합니다.</p>
+      </details>
+      <button class="btn" id="submit" type="submit">상담 신청하기</button>
+      <div class="msg" id="msg"></div>
+    </form>
+  </div>
+  <div class="done" id="doneBox" hidden>
+    <h3>신청 완료!</h3>
+    <p>곧 연락드릴게요.</p>
+  </div>
+</section>
+
+<p class="note" style="text-align:center;margin-bottom:24px">티키타CAR · 기아 증산대리점 카마스터 방문수</p>
+</div>
+
+<div id="bar"><div class="in">
+  <div><small>월 납입금 (예상)</small><span class="mm" id="bMonthly">-</span></div>
+  <a href="#apply">상담 신청</a>
+</div></div>
+
+<script>
+// ===== 차종 데이터 (차종 추가: CARS에 키 하나 추가) =====
+// 가격 단위: 원. 출처: 기아 공식 가격표 2026.11.01 기준 (승용 1.0 가솔린)
+const M = 10000;
+const CARS = {
+  morning: {
+    name: '모닝', priceDate: '2026.11.01',
+    trims: [
+      { id:'trendy', name:'트렌디', price:14210000,
+        highlights:['7에어백 (운전석 무릎 포함)','전방 충돌방지 보조 (차량/보행자/자전거)','8인치 디스플레이 오디오 (무선 폰프로젝션)','4단 자동변속기'],
+        options:[
+          { id:'conv', name:'컨비니언스', price:15*M, desc:'열선 스티어링 휠, 인조가죽 스티어링, 가죽 변속기 노브' },
+          { id:'comfort', name:'컴포트', price:30*M, desc:'앞좌석 열선시트 포함' },
+          { id:'btn', name:'버튼시동 PACK', price:50*M, desc:'버튼시동 스마트키(원격시동) + 하이패스' },
+          { id:'nav', name:'8인치 내비게이션', price:80*M, requires:['btn'] },
+          { id:'cluster', name:'10.25인치 클러스터', price:30*M, requires:['nav'] },
+          { id:'wheel16', name:'16인치 전면가공 휠', price:50*M }
+        ]},
+      { id:'prestige', name:'프레스티지', price:16010000,
+        highlights:['운전석 통풍시트·앞좌석 열선시트','버튼시동 스마트키(원격시동) + 하이패스','7에어백 (운전석 무릎 포함)','8인치 디스플레이 오디오 (무선 폰프로젝션)'],
+        options:[
+          { id:'conv', name:'컨비니언스', price:15*M, desc:'열선 스티어링 휠, 인조가죽 스티어링, 가죽 변속기 노브' },
+          { id:'nav', name:'8인치 내비게이션', price:70*M },
+          { id:'cluster', name:'10.25인치 클러스터', price:30*M, requires:['nav'] },
+          { id:'wheel16', name:'16인치 전면가공 휠', price:65*M, desc:'전자식 파킹브레이크(오토홀드 포함) 포함' },
+          { id:'drivewise', name:'드라이브 와이즈', price:50*M, requires:['wheel16'], desc:'교차로 충돌방지, 스마트크루즈(정차&재출발), 후측방 충돌경고 등' }
+        ]},
+      { id:'signature', name:'시그니처', price:18160000,
+        highlights:['드라이브 와이즈 기본','10.25인치 클러스터 기본','16인치 전면가공 휠 기본','전자식 파킹브레이크(오토홀드) 기본','열선 스티어링 휠 기본'],
+        options:[
+          { id:'sunroof', name:'선루프', price:40*M },
+          { id:'nav', name:'8인치 내비게이션', price:70*M }
+        ]},
+      { id:'gtline', name:'GT-Line', price:19110000,
+        highlights:['드라이브 와이즈 기본','10.25인치 클러스터 기본','16인치 전면가공 휠 기본','전자식 파킹브레이크(오토홀드) 기본','열선 스티어링 휠 기본'],
+        options:[
+          { id:'sunroof', name:'선루프', price:40*M },
+          { id:'nav', name:'8인치 내비게이션', price:70*M }
+        ]}
+    ]
+  }
+};
+const CONFIG = { rate:4.6, months:[12,24,36,48,60], defaultMonths:60, scriptUrl:'https://script.google.com/macros/s/AKfycbyUMNFCcEq2p7KQx-1tTaW3htCO4ZYukQg2HyZvyDkmRKz3ZqrXsgSVEVbxKlTiayWO/exec' };
+
+// ===== 계산 =====
+function monthlyPayment(principal, ratePct, n){
+  if(principal <= 0) return 0;
+  const r = ratePct/100/12;
+  const m = r === 0 ? principal/n : principal*r/(1-Math.pow(1+r,-n));
+  return Math.round(m);
+}
+function won(n){ return Math.round(n).toLocaleString('ko-KR') + '원'; }
+function readable(n){
+  n = Math.round(n);
+  let man = Math.floor(n/10000), cheon = Math.round((n%10000)/1000);
+  if(cheon === 10){ man++; cheon = 0; }
+  if(man === 0 && cheon === 0) return '약 0원';
+  let s = '약 ';
+  if(man) s += man.toLocaleString('ko-KR') + '만 ';
+  if(cheon) s += cheon + '천 ';
+  return s + '원';
+}
+function shortMan(n){ return Math.round(n/10000) + '만'; }
+function esc(s){ return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+// ===== 상태 =====
+const S = { car:'morning', trim:null, opts:new Set(), down:0, months:CONFIG.defaultMonths };
+const $ = id => document.getElementById(id);
+const car = () => CARS[S.car];
+const trim = () => car().trims.find(t=>t.id===S.trim);
+const optById = id => trim().options.find(o=>o.id===id);
+
+function vehiclePrice(){
+  const t = trim();
+  return t.price + t.options.filter(o=>S.opts.has(o.id)).reduce((a,o)=>a+o.price,0);
+}
+function calc(){
+  const price = vehiclePrice();
+  const down = Math.min(S.down, price);
+  const loan = price - down;
+  const monthly = monthlyPayment(loan, CONFIG.rate, S.months);
+  const interest = loan > 0 ? monthly*S.months - loan : 0;
+  return { price, down, loan, monthly, interest };
+}
+
+// ===== 옵션 연동 =====
+function selectOpt(id){
+  if(S.opts.has(id)) return;
+  const o = optById(id);
+  (o.requires||[]).forEach(selectOpt);
+  S.opts.add(id);
+}
+function deselectOpt(id){
+  S.opts.delete(id);
+  trim().options.forEach(o=>{
+    if((o.requires||[]).includes(id) && S.opts.has(o.id)) deselectOpt(o.id);
+  });
+}
+
+// ===== 렌더 =====
+function renderCars(){
+  $('cars').innerHTML = Object.keys(CARS).map(k=>
+    `<button type="button" class="opt ${k===S.car?'on':''}" data-car="${esc(k)}"><div class="top"><b>${esc(CARS[k].name)}</b><span class="pr">${esc(CARS[k].priceDate)} 기준</span></div></button>`
+  ).join('');
+  $('cars').querySelectorAll('[data-car]').forEach(b=>b.onclick=()=>{
+    S.car = b.dataset.car; S.trim = car().trims[0].id; S.opts.clear(); renderAll();
+  });
+}
+function renderTrims(){
+  $('trims').innerHTML = car().trims.map(t=>
+    `<button type="button" class="opt ${t.id===S.trim?'on':''}" data-trim="${esc(t.id)}">
+      <div class="top"><b>${esc(t.name)}</b><span class="pr">${won(t.price)}</span></div>
+      <ul>${t.highlights.map(h=>`<li>${esc(h)}</li>`).join('')}</ul>
+    </button>`
+  ).join('');
+  $('trims').querySelectorAll('[data-trim]').forEach(b=>b.onclick=()=>{
+    S.trim = b.dataset.trim; S.opts.clear(); renderAll();
+  });
+}
+function renderOpts(){
+  const t = trim();
+  if(!t.options.length){ $('opts').innerHTML = '<div class="empty">선택 가능한 옵션이 없습니다.</div>'; return; }
+  $('opts').innerHTML = t.options.map(o=>{
+    const req = (o.requires||[]).map(id=>optById(id).name);
+    const hint = [o.desc, req.length ? `${req.join(', ')} 선택 시 가능 (자동으로 함께 선택돼요)` : ''].filter(Boolean).join(' · ');
+    return `<label class="chk"><input type="checkbox" data-opt="${esc(o.id)}" ${S.opts.has(o.id)?'checked':''}>
+      <span class="nm">${esc(o.name)}${hint?`<small>${esc(hint)}</small>`:''}</span>
+      <span class="p">+${shortMan(o.price)}원</span></label>`;
+  }).join('');
+  $('opts').querySelectorAll('[data-opt]').forEach(c=>c.onchange=()=>{
+    c.checked ? selectOpt(c.dataset.opt) : deselectOpt(c.dataset.opt);
+    renderOpts(); renderResult();
+  });
+}
+function renderDown(){
+  const price = vehiclePrice();
+  $('dpq').innerHTML = [0,10,20,30].map(p=>`<button type="button" class="pill" data-pct="${p}">${p}%</button>`).join('');
+  $('dpq').querySelectorAll('[data-pct]').forEach(b=>b.onclick=()=>{
+    const man = Math.round(vehiclePrice()*b.dataset.pct/100/M);
+    S.down = man*M; $('dp').value = man; renderResult();
+  });
+}
+function renderMonths(){
+  $('months').innerHTML = CONFIG.months.map(m=>`<button type="button" class="pill ${m===S.months?'on':''}" data-m="${m}">${m}개월</button>`).join('');
+  $('months').querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{ S.months = +b.dataset.m; renderMonths(); renderResult(); });
+}
+function renderResult(){
+  const c = calc();
+  $('rPrice').textContent = won(c.price);
+  $('rDown').textContent = won(c.down);
+  $('rLoan').textContent = c.loan > 0 ? won(c.loan) : '할부 없음';
+  $('rInt').textContent = c.loan > 0 ? won(c.interest) : '-';
+  $('rRate').textContent = CONFIG.rate;
+  $('rMon').textContent = S.months;
+  if(c.loan > 0){
+    $('rMonthly').textContent = readable(c.monthly);
+    $('rMonthlyExact').textContent = '(' + won(c.monthly) + ')';
+    $('bMonthly').textContent = readable(c.monthly);
+  } else {
+    $('rMonthly').textContent = '할부 없음';
+    $('rMonthlyExact').textContent = '';
+    $('bMonthly').textContent = '할부 없음';
+  }
+}
+function renderAll(){ renderCars(); renderTrims(); renderOpts(); renderDown(); renderMonths(); renderResult(); }
+
+$('dp').addEventListener('input', e=>{
+  const v = Math.max(0, Math.floor(+e.target.value || 0));
+  S.down = v*M; renderResult();
+});
+
+// ===== 신청 =====
+function normPhone(s){
+  const d = s.replace(/\D/g,'');
+  return /^010\d{8}$/.test(d) ? d.replace(/^(\d{3})(\d{4})(\d{4})$/,'$1-$2-$3') : null;
+}
+function setMsg(t, ok){ const m=$('msg'); m.textContent=t; m.className='msg'+(ok?' ok':''); }
+
+$('form').addEventListener('submit', async e=>{
+  e.preventDefault();
+  if($('fWeb').value) return; // honeypot
+  const name = $('fName').value.trim();
+  const phone = normPhone($('fPhone').value);
+  if(!name) return setMsg('이름을 입력해 주세요.');
+  if(!phone) return setMsg('연락처를 010-0000-0000 형식으로 입력해 주세요.');
+  if(!$('fAgree').checked) return setMsg('개인정보 수집·이용에 동의해 주세요.');
+  const c = calc(), t = trim();
+  const payload = {
+    car: car().name, trim: t.name,
+    options: t.options.filter(o=>S.opts.has(o.id)).map(o=>`${o.name}(+${shortMan(o.price)}원)`),
+    vehiclePrice: c.price, down: c.down, loan: c.loan, months: S.months, rate: CONFIG.rate, monthly: c.monthly,
+    name, phone, contactTime: $('fTime').value, memo: $('fMemo').value.trim(),
+    website: $('fWeb').value, submittedAt: new Date().toISOString()
+  };
+  if(!CONFIG.scriptUrl){
+    console.log('[테스트 모드] payload', payload);
+    return setMsg('테스트 모드: 아직 알림 연결 전이라 실제로 전송되지 않았어요.', true);
+  }
+  const btn = $('submit'); btn.disabled = true; setMsg('전송 중...', true);
+  try{
+    await fetch(CONFIG.scriptUrl, { method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify(payload) });
+    $('formBox').hidden = true; $('doneBox').hidden = false;
+  }catch(err){
+    btn.disabled = false; setMsg('전송에 실패했어요. 잠시 후 다시 시도해 주세요.');
+  }
+});
+
+S.trim = car().trims[0].id;
+renderAll();
+</script>
+</body>
+</html>
